@@ -88,14 +88,39 @@
       <a href="#assembling">assembled automatically</a>.
     </p>
     <p>
-      First, ...
+      As usual,
+      the bookmarklet is embedded into a closure
+      within a "javascript" URL.
     </p>
     <pre class="bookmarklet-code"><![CDATA[javascript:(function(){ ... })()]]></pre>
+    <p>
+      First, the original URL is retrieved,
+      and the
+      <a href="http://en.wikipedia.org/wiki/Fragment_identifier">URL fragment</a>
+      is stripped.
+      (The fragment causes trouble with autoreloading in some browsers.)
+    </p>
     <pre class="bookmarklet-code"><![CDATA[var urlWithoutFragment=window.location.href.replace(/#.*/,'');
 ...]]></pre>
+    <p>
+      Then,
+      a new window (usually just a new browser tab)
+      is opened to provide
+      a fresh environment
+      for the autoreload mechanism.
+      That ensures
+      the bookmarklet won't influence
+      the current window in any way.
+    </p>
     <pre class="bookmarklet-code"><![CDATA[var newWindow=window.open('about:blank','_blank');
 newWindow.document.write(' ... ');
 newWindow.document.close();]]></pre>
+    <p>
+      The new window
+      consists of a very simple HTML document
+      which contains just a single big frame
+      and some JavaScript code.
+    </p>
     <pre class="bookmarklet-code"><![CDATA[<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
 <html>
   <head>
@@ -108,11 +133,36 @@ newWindow.document.close();]]></pre>
     <frame src="about:blank">
   </frameset>
 </html>]]></pre>
+    <p>
+      Since the autoreload mechanism
+      needs a working frame object,
+      it is completely embedded
+      in the "load" event handler
+      of the new window.
+    </p>
     <pre class="bookmarklet-code"><![CDATA[window.addEventListener(\'load\',function(){ ... },false);]]></pre>
+    <p>
+      The autoreload mechanism itself
+      works in two steps.
+      First,
+      an event handler is installed
+      which triggers whenever the
+      reload of the frame has finished.
+      Second,
+      the whole mechanism is started
+      by loading the original URL once.
+    </p>
     <pre class="bookmarklet-code"><![CDATA[var frame=document.getElementsByTagName(\'frame\')[0];
 frame.addEventListener(\'load\',function(){ ... },false);
 frame.src=\''+urlWithoutFragment+'\';]]></pre>
+    <p>
+      Finally, a frame reload is initiated
+      100ms after the previous reload has finished.
+    </p>
     <pre class="bookmarklet-code"><![CDATA[window.setTimeout(function(){frame.src=frame.src;},100);]]></pre>
+    <p>
+      That's it!
+    </p>
 
     <h1 id="assembling">Assembling</h1>
     <p>
