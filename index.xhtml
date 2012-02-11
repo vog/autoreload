@@ -140,7 +140,7 @@ newWindow.document.close();]]></pre>
       in the "load" event handler
       of the new window.
     </p>
-    <pre class="bookmarklet-code"><![CDATA[window.addEventListener(\'load\',function(){ ... },false);]]></pre>
+    <pre class="bookmarklet-code"><![CDATA[window.addEventListener("load",function(){ ... },false);]]></pre>
     <p>
       The autoreload mechanism itself
       works in two steps.
@@ -152,9 +152,9 @@ newWindow.document.close();]]></pre>
       the whole mechanism is started
       by loading the original URL once.
     </p>
-    <pre class="bookmarklet-code"><![CDATA[var frame=document.getElementsByTagName(\'frame\')[0];
-frame.addEventListener(\'load\',function(){ ... },false);
-frame.src=\''+urlWithoutFragment+'\';]]></pre>
+    <pre class="bookmarklet-code"><![CDATA[var frame=document.getElementsByTagName("frame")[0];
+frame.addEventListener("load",function(){ ... },false);
+frame.src="'+urlWithoutFragment+'";]]></pre>
     <p>
       Finally, a frame reload is initiated
       100ms after the previous reload has finished.
