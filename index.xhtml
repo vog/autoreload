@@ -18,8 +18,25 @@
         font-size: 14pt;
         font-family: sans-serif;
       }
+      h1 a {
+        text-decoration: none;
+        color: #000;
+      }
+      pre {
+        font-size: 8pt;
+        border: thin dotted #ccc;
+        padding: 2pt;
+      }
       a {
         text-decoration: none;
+      }
+      #error {
+        color: #f00;
+        font-weight: bold;
+      }
+      #loaded {
+        color: #777;
+        text-align: right;
       }
       a#bookmarklet {
         font-size: 40pt;
@@ -28,6 +45,7 @@
         text-decoration: none;
         text-align: center;
         display: block;
+        visibility: hidden;
         padding: 10pt;
         margin-left: 30pt;
         margin-right: 30pt;
@@ -37,13 +55,98 @@
     </style>
   </head>
   <body>
-    <h1>Autoreload Bookmarklet</h1>
+    <p id="loaded">Not loaded</p>
+
+    <h1><a href="http://vog.github.com/autoreload/">Autoreload Bookmarklet</a></h1>
     <p>
       Just move the following bookmarklet to your bookmarks toolbar:
     </p>
+    <p id="error">Please enable JavaScript!</p>
     <p>
       <a id="bookmarklet">Autoreload</a>
     </p>
+    <p>
+      It is <span id="bookmarklet-size">?</span> bytes small
+      and tested with Chromium and Firefox.
+      Feel free to
+      <a href="https://github.com/vog/autoreload">check out the source</a>
+      and to share improvements.
+    </p>
+    <p>
+      Have fun!
+    </p>
+
+    <h1 id="implementation">Implementation</h1>
+    <p>
+      This bookmarklet is written in the style of
+      <a href="http://www.profv.de/literate-programming/">self-contained literate programming</a>.
+      That is,
+      you can simply change the following JavaScript code snippets
+      directly within this XHTML document,
+      and the bookmarklet will be
+      <a href="#assembling">assembled automatically</a>.
+    </p>
+    <p>
+      First, ...
+    </p>
+    <pre class="bookmarklet-code"><![CDATA[javascript:(function(){ ... })()]]></pre>
+    <pre class="bookmarklet-code"><![CDATA[var urlWithoutFragment=window.location.href.replace(/#.*/,'');
+...]]></pre>
+    <pre class="bookmarklet-code"><![CDATA[var newWindow=window.open('about:blank','_blank');
+newWindow.document.write(' ... ');
+newWindow.document.close();]]></pre>
+    <pre class="bookmarklet-code"><![CDATA[<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
+<html>
+  <head>
+    <title>[Autoreload] '+urlWithoutFragment+'</title>
+    <script type="text/javascript">
+      ...
+    </script>
+  </head>
+  <frameset>
+    <frame src="about:blank">
+  </frameset>
+</html>]]></pre>
+    <pre class="bookmarklet-code"><![CDATA[window.addEventListener(\'load\',function(){ ... },false);]]></pre>
+    <pre class="bookmarklet-code"><![CDATA[var frame=document.getElementsByTagName(\'frame\')[0];
+frame.addEventListener(\'load\',function(){ ... },false);
+frame.src=\''+urlWithoutFragment+'\';]]></pre>
+    <pre class="bookmarklet-code"><![CDATA[window.setTimeout(function(){frame.src=frame.src;},100);]]></pre>
+
+    <h1 id="assembling">Assembling</h1>
+    <p>
+      The following code is executed whenever
+      this XHTML file is loaded.
+      It assembles the
+      <a href="#implementation">implementation</a>
+      to a working bookmarklet link.
+    </p>
+    <pre id="assembling-code"/>
+    <script type="text/javascript" id="assembling-script">
+      <![CDATA[
+        // Assemble code
+        var code = '...';
+        var elements = document.body.getElementsByTagName('*');
+        for (var i = 0; i < elements.length; i++) {
+          var e = elements[i];
+          if (e.className === 'bookmarklet-code') {
+            var subcode = e.textContent.replace(/\n */g, '');
+            code = code.replace(/ \.\.\. |\.\.\./, subcode);
+          }
+        }
+        code = code.replace(/%/g, '%25');
+        code = code.replace(/ /g, '%20');
+        code = code.replace(/#/g, '%23');
+
+        // Show bookmarklet URL
+        var bookmarklet = document.getElementById('bookmarklet');
+        bookmarklet.style.visibility = 'visible';
+        bookmarklet.href = code;
+
+        // Show size information
+        document.getElementById('bookmarklet-size').textContent = code.length;
+      ]]>
+    </script>
 
     <h1 id="copyright">Copyright</h1>
     <p>
@@ -72,5 +175,22 @@
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     </p>
+
+    <!-- House keeping -->
+    <script type="text/javascript">
+      <![CDATA[
+        // Disable JS error message
+        document.getElementById('error').style.display = 'none';
+
+        // Show loading time
+        document.getElementById('loaded').textContent = 'Loaded ' + new Date().toISOString();
+
+        // Show assembling code
+        var assemblingCode = document.getElementById('assembling-script').textContent;
+        assemblingCode = assemblingCode.replace(/^[ \n]*|[ \n]*$/g, '');
+        assemblingCode = assemblingCode.replace(/^        /mg, '');
+        document.getElementById('assembling-code').textContent = assemblingCode;
+      ]]>
+    </script>
   </body>
 </html>
